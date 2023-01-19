@@ -1,0 +1,195 @@
+What are the Top 25 schools (.edu domains)?
+
+SELECT email_domain
+FROM users
+GROUP BY 1
+ORDER BY email_domain DESC
+LIMIt 25
+
+How many .edu learners are located in New York?
+
+SELECT COUNT(*)
+FROM users
+WHERE city = ‘New York’ AND email_domain LIKE ‘%.edu%’;
+
+How many of these Codecademy learners are using the mobile app?
+
+SELECT COUNT(distinct user_id) AS 'MObile app users'
+FROM users
+WHERE mobile_app IS NOT NULL;
+
+query for the sign up counts for each hour?
+
+SELECT sign_up_at, strftime('%H', sign_up_at) AS 'Hour'
+FROM users
+GROUP BY 1;
+
+Do different schools (.edu domains) prefer different courses?
+
+WITH courses_by_school AS (
+SELECT u.email_domain,
+	CASE 
+	WHEN p.learn_cpp = ''
+	THEN 0
+	ELSE 1
+	END AS cpp,
+	CASE 
+	WHEN p.learn_sql = ''
+	THEN 0
+	ELSE 1
+	END AS sql,
+	CASE 
+	WHEN p.learn_html = ''
+	THEN 0
+	ELSE 1
+	END AS html,
+	CASE 
+	WHEN p.learn_javascript = ''
+	THEN 0
+	ELSE 1
+	END AS js,
+	CASE 
+	WHEN p.learn_java = ''
+	THEN 0
+	ELSE 1
+	END AS java
+FROM users AS 'u'
+JOIN progress AS 'p'
+	ON u.user_id = p.user_id
+WHERE email_domain LIKE '%.edu')
+SELECT email_domain,
+	cpp+sql+html+js+java AS total_courses,
+	CASE
+	WHEN cpp = 1 THEN 'yes'
+	ELSE '-'
+	END AS cpp_course,
+	CASE
+	WHEN sql = 1 THEN 'yes'
+	ELSE '-'
+	END AS sql_course,
+	CASE
+	WHEN html = 1 THEN 'yes'
+	ELSE '-'
+	END AS html_course,
+	CASE
+	WHEN js = 1 THEN 'yes'
+	ELSE '-'
+	END AS js_course,
+	CASE
+	WHEN java = 1 THEN 'yes'
+	ELSE '-'
+	END AS java_course
+FROM courses_by_school
+GROUP BY 1
+ORDER BY total_courses DESC;
+
+What courses are the New Yorkers students taking?
+
+WITH courses_by_city AS (
+SELECT u.city,
+	CASE 
+	WHEN p.learn_cpp = ''
+	THEN 0
+	ELSE 1
+	END AS cpp,
+	CASE 
+	WHEN p.learn_sql = ''
+	THEN 0
+	ELSE 1
+	END AS sql,
+	CASE 
+	WHEN p.learn_html = ''
+	THEN 0
+	ELSE 1
+	END AS html,
+	CASE 
+	WHEN p.learn_javascript = ''
+	THEN 0
+	ELSE 1
+	END AS js,
+	CASE 
+	WHEN p.learn_java = ''
+	THEN 0
+	ELSE 1
+	END AS java
+FROM users AS 'u'
+LEFT JOIN progress AS 'p'
+	ON u.user_id = p.user_id
+WHERE email_domain LIKE '%.edu'
+AND u.city = 'New York')
+SELECT 'cpp' AS course,
+	SUM(cpp) AS students
+FROM courses_by_city
+UNION
+SELECT 'sql' AS course,
+	SUM(sql) AS students
+FROM courses_by_city
+UNION
+SELECT 'html' AS course,
+	SUM(html) AS students
+FROM courses_by_city
+UNION
+SELECT 'js' AS course,
+	SUM(js) AS students
+FROM courses_by_city
+UNION
+SELECT 'java' AS course,
+	SUM(java) AS students
+FROM courses_by_city
+ORDER BY 2 DESC;
+
+What courses are the Chicago students taking?
+
+
+WITH courses_by_city AS (
+SELECT u.city,
+	CASE 
+	WHEN p.learn_cpp = ''
+	THEN 0
+	ELSE 1
+	END AS cpp,
+	CASE 
+	WHEN p.learn_sql = ''
+	THEN 0
+	ELSE 1
+	END AS sql,
+	CASE 
+	WHEN p.learn_html = ''
+	THEN 0
+	ELSE 1
+	END AS html,
+	CASE 
+	WHEN p.learn_javascript = ''
+	THEN 0
+	ELSE 1
+	END AS js,
+	CASE 
+	WHEN p.learn_java = ''
+	THEN 0
+	ELSE 1
+	END AS java
+FROM users AS 'u'
+LEFT JOIN progress AS 'p'
+	ON u.user_id = p.user_id
+WHERE email_domain LIKE '%.edu'
+AND u.city = 'Chicago')
+SELECT 'cpp' AS course,
+	SUM(cpp) AS students
+FROM courses_by_city
+UNION
+SELECT 'sql' AS course,
+	SUM(sql) AS students
+FROM courses_by_city
+UNION
+SELECT 'html' AS course,
+	SUM(html) AS students
+FROM courses_by_city
+UNION
+SELECT 'js' AS course,
+	SUM(js) AS students
+FROM courses_by_city
+UNION
+SELECT 'java' AS course,
+	SUM(java) AS students
+FROM courses_by_city
+ORDER BY 2 DESC;
